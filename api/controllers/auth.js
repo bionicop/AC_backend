@@ -5,12 +5,25 @@ import jwt from "jsonwebtoken";
 export const register = (req, res) => {
   //CHECK USER IF EXISTS
 
-  const q = "SELECT * FROM users WHERE username = ?";
+  const q = "SELECT * FROM users WHERE username = ? OR email = ?";
 
-  db.query(q, [req.body.username], (err, data) => {
+  db.query(q, [req.body.username, req.body.email], (err, data) => {
     if (err) return res.status(500).json(err);
-    if (data.length) return res.status(409).json("User already exists!");
+    if (data.length) {
+      const existingUser = data[0];
+      if (existingUser.username === req.body.username) {
+        return res.status(409).json("User already exists!");
+      } else if (existingUser.email === req.body.email) {
+        return res.status(409).json("Email is already being used!");
+      }
+    }
+
     //CREATE A NEW USER
+    // Check if email has "@gmail" domain
+    if (!req.body.email.endsWith("@gmail.com")) {
+      return res.status(400).json("Email must be of the form example@gmail.com");
+    }
+
     //Hash the password
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(req.body.password, salt);
@@ -58,6 +71,7 @@ export const login = (req, res) => {
       .json(others);
   });
 };
+
 
 export const logout = (req, res) => {
   res.clearCookie("accessToken",{

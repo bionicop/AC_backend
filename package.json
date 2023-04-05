@@ -4,6 +4,8 @@
     "mysql2": "^3.2.0",
     "nodemon": "^2.0.22",
     "react-icons": "^4.8.0",
+    "react-slick": "^0.29.0",
+    "slick-carousel": "^1.8.1",
     "webpack-dev-server": "^4.13.2"
   }
 }
